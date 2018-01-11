@@ -2,7 +2,6 @@ package com.wesoft;
 
 import java.io.PrintWriter;
 
-import org.codehaus.commons.compiler.CompileException;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.TestExecutionListener;
@@ -10,7 +9,6 @@ import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 
-import com.wesoft.testcases.*;
 import com.wesoft.commom.RequestGenerater;
 import com.wesoft.commom.MyListener;
 import com.wesoft.commom.Report;
@@ -27,7 +25,7 @@ public class JavaDemo {
         //In fact, it can register more than one listener if needed
         //Listener provided by Junit, it can show some Summary after all the tests are done
         SummaryGeneratingListener listener = new SummaryGeneratingListener(); 
-        //Listener I extends the TestExecutionListerner interface, to out some info during the testing
+        //Listener I extends the TestExecutionListerner interface, to send out some info during the testing
         TestExecutionListener mylistener = new MyListener();
         launcher.registerTestExecutionListeners(listener,mylistener);
 

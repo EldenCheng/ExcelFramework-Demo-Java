@@ -1,13 +1,8 @@
 package com.wesoft.commom;
 
-import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
+
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 
-import java.lang.reflect.InvocationTargetException;
-
-import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.IScriptEvaluator;
 import org.codehaus.janino.ScriptEvaluator;
 
@@ -43,10 +38,7 @@ public class RequestGenerater {
 				script5 = script5 + ",selectClass(tc" + Integer.toString(new Double((double)d).intValue()) +"_tests.class)";
 			}		
 		}
-		script3 = script3 + script5.substring(5) + ");\r\n";
-		
-		//System.out.println(script3);
-		
+		script3 = script3 + script5.substring(5) + ");\r\n";		
 		String script4 = "rb.filters(includeClassNamePatterns(\".*tests\"));\r\n" + 
 				"return rb.build();";
 		

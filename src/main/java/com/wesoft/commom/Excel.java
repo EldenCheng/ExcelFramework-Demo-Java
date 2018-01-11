@@ -6,27 +6,20 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet; 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 
 public class Excel {
 	
 	private XSSFWorkbook book;
 	private XSSFSheet sheet;
-	private String filepath;
 	private String tcno=null;
-	private IdentityHashMap<String, IdentityHashMap> randomdatasetmap;
+	private IdentityHashMap<String, IdentityHashMap<String,String>> randomdatasetmap;
 	private IdentityHashMap<String, String> randomvaluemap;
 	private int recordeddataset;
 	
@@ -41,7 +34,6 @@ public class Excel {
 		try {
 			fis = new FileInputStream(excel);
 			book = new XSSFWorkbook(fis);
-			filepath = excelpath;
 			
 		} catch (FileNotFoundException e) {
 			throw new Exception("Not found excel file in the path. " + 
@@ -105,10 +97,9 @@ public class Excel {
 	public int getColNumber() throws Throwable{
 		int cols =0;
 		try {
-			//System.out.println(sheet.getRow(0).getFirstCellNum());
-			//System.out.println(sheet.getRow(0).getLastCellNum());
 			if(sheet.getLastRowNum() != -1) {
 				short num= sheet.getRow(0).getLastCellNum();
+				//Find the first non null cell in the first row(row 0) order by desc, got the col number
 				for(int i=num;i>-1;i--) {
 					if(sheet.getRow(0).getCell(i) == null) {
 						if(i != 0) {
@@ -119,11 +110,12 @@ public class Excel {
 							break;
 						}
 					}
+					//It have two scenes, one is the cell itself is not exits, another is the cell value is null
+					//This is to find the second scene
 					else if(sheet.getRow(0).getCell(i).getRawValue() == null){
 						continue;
 					}
 					else {
-						//System.out.println(sheet.getRow(0).getCell(i).getRawValue());
 						cols = i;
 						break;
 					}
@@ -134,7 +126,7 @@ public class Excel {
 				throw new Exception("No found any cols in sheet: " + sheet.getSheetName());
 			}
 		} catch (Throwable e) {
-			throw new Exception("No found any cols in sheet: " + sheet.getSheetName() + 
+			throw new Exception("Error(s) occurred when finding col number in sheet: " + sheet.getSheetName() + 
                     "The Exception is: " + e.getMessage());
 		}
 		return cols;
@@ -150,6 +142,7 @@ public class Excel {
 		
 		for(int i = 0;i<cols;i++) {
 			if(sheet.getRow(0).getCell(i) != null) {
+				//When the col name(in row 0) is equals the keyword
 				if(sheet.getRow(0).getCell(i).getStringCellValue().toLowerCase().equals(colname.toLowerCase())) {
 					if(sheet.getRow(row).getCell(i) != null) {
 						switch (sheet.getRow(row).getCell(i).getCellTypeEnum()) {
@@ -162,9 +155,12 @@ public class Excel {
 							String v = (String)value;
 							//If the value has keyword "random"
 							if(v.contains("random")) {
+								//To ensure will not exchange random value when generate report need to read the same cell value
+								//So when running test cases, set the tcno, if generating report, not set 
 								if(tcno != null){
-									value = this.getRandomValue(v);
-									
+									value = this.getRandomValue(v);	
+									//To avoid repeat to add the same randomdatasetmap and create a new randomvaluemap
+									//if there is multi random value in one dataset
 									if(recordeddataset != row) {
 										randomvaluemap = new IdentityHashMap<>();
 										randomvaluemap.put(colname, (String)value);
@@ -174,8 +170,7 @@ public class Excel {
 									}
 									else {
 										randomvaluemap.put(colname, (String)value);
-									}
-									
+									}	
 								}
 							}
 							break;
@@ -187,32 +182,28 @@ public class Excel {
 						}
 						break;
 					}
-				}
-				
+				}	
 			}
 		}
-		/*
-		if(value == null) {
-			throw new Exception("Cannot find any value in col: " + colname);
-		}
-		*/
 		return value;
 	}
 	
 	private Object getRandomValue(String randomindex) throws Throwable {
-		List<Object> values= new LinkedList();
+		List<Object> values= new LinkedList<Object>();
 		Excel temp=null;
 		XSSFSheet st=null;
 		try {
 			temp = new Excel(Report.getReportFilePath());
 			st = temp.selectSheetByName("data");				
 		}catch(Throwable e) {
-			
+			throw new Exception("Error(s) occurred when opening in data sheet: " + 
+                    "The Exception is: " + e.getMessage());
 		}		
 		int cols = temp.getColNumber() + 1;
 		for(int i = 0;i<cols;i++) {
 			if(st.getRow(0).getCell(i) != null) {
 				if(st.getRow(0).getCell(i).getStringCellValue().toLowerCase().equals(randomindex.toLowerCase())) {
+					//After found the col, add all the cell value(s) of this col into a List
 					for(int row=1;row<st.getLastRowNum();row++) {
 						if(st.getRow(row).getCell(i) != null) {
 							switch (st.getRow(row).getCell(i).getCellTypeEnum()) {
@@ -237,6 +228,7 @@ public class Excel {
 				
 			}
 		}
+		//Pick a int number between 0 and the random value array size 
 		int rnd = new Random().nextInt(values.size());
 		temp.closeExcel();
 		return values.get(rnd);
@@ -256,31 +248,27 @@ public class Excel {
 		
 		for(int i=0;i<cols;i++) {
 			if(sheet.getRow(0).getCell(i) != null) {
+				//Find the specified col name first
 				if(sheet.getRow(0).getCell(i).getStringCellValue().toLowerCase().equals(accroding_dataset_colname.toLowerCase())) {
 					for(int j =0;j<rows;j++) {
 						if(sheet.getRow(j).getCell(i) != null) {
+							//Then find the row number which is hit the keyword in the specified col
 							if(sheet.getRow(j).getCell(i).getStringCellValue().toLowerCase().equals(keyword.toLowerCase())) {
-								//System.out.println(this.Get_value_by_colname(dataset_colname, j));
 								value=this.getValueByColname(dataset_colname, j);
 								if(value != null) {
 									dt.add(value);
 								}
 							}
-							
-						}						
-						
+						}								
 					}
-				}
-				
+				}	
 			}
-			
 		}
 			
 		if(dt.isEmpty()) {
 			throw new Exception("Cannot find any value in col: \"" + dataset_colname + "\" by using \"" + keyword + "\" to search in col: \"" + accroding_dataset_colname + "\"" );
 		}
 		return dt.toArray();
-		
 	}
 	
 	public void setValueByColname(String value, String colname, int row, boolean formula) throws Throwable {
@@ -289,7 +277,7 @@ public class Excel {
 		int rows = sheet.getLastRowNum() + 1 ;
 		if(row > rows) {
 			throw new Exception("The specified row num is larger than the max row num: " + Integer.toString(rows));
-		}else if(row == rows) {
+		}else if(row == rows) { //As row 0 must be col name, so in fact real row number must + 1
 			sheet.createRow(row);
 		}
 		
@@ -297,14 +285,13 @@ public class Excel {
 			for(int i = 0;i<cols;i++) {
 				if(sheet.getRow(0).getCell(i) != null) {
 					if(sheet.getRow(0).getCell(i).getStringCellValue().toLowerCase().equals(colname.toLowerCase())) {
+						//The cell is not exist if there is no value in fact, so need to create it first
+						//If the cell already existed, create the same cell will use a blank cell cover the ori cell
+						//But we are going to use a new value to cover the old value, so has no check the ori cell exists or not here
 						XSSFCell c = sheet.getRow(row).createCell(i);
 						if(formula) {
-							//c.setCellType(CellType.FORMULA);
-							//c.setCellValue(value);
 							c.setCellFormula(value);
-							//c=new XSSFFormulaEvaluator(book).evaluateInCell(c);
-							break;
-	                    	
+							break;                   	
 	                    }
 						else {
 							c.setCellValue(value);
@@ -314,7 +301,7 @@ public class Excel {
 				}
 			}
 		}catch(Throwable e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new Exception("Error on writing excel file; The Exception is: " + e.getMessage());
 		}
 	}

@@ -21,7 +21,7 @@ public class tc2_tests {
 	private WebPage page;
 	private WebDriver drv;
 	private String tcno="2";
-	private String pass_fail = "fail"; 
+	private String pass_fail = "Fail"; 
 
     @Test
     @DisplayName("Login with correct ID/PW")
@@ -34,7 +34,7 @@ public class tc2_tests {
     	exc.setTCNO(tcno);
     	dt= exc.getDatasetAccordly("Data set", "executed", "Not Yet");
     	} catch(Throwable e) {
-    		pass_fail="fail";
+    		pass_fail="Fail";
     		errorlog = errorlog + "\nError on loading test data; Error message is:" + e.getMessage();
     	}
 
@@ -53,13 +53,11 @@ public class tc2_tests {
         		 //If success login and switch to Start page
         		 if(drv.getTitle().equals(StartPage.TXT_PAGETITLE)) {
             		 if(page.textIncludedAssertion(StartPage.LB_LOGONUSERNAME, (String)exc.getValueByColname("Assertion", dts))) {
-            			 //page.Logout();
-            			 pass_fail= "pass";
+            			 pass_fail= "Pass";
             			 System.out.println("Success to verify assertion on dataset " + Integer.toString(dts));
             		 }
             		 else {
-            			 //page.Logout();
-            			 pass_fail="fail";
+            			 pass_fail="Fail";
             			 throw new Exception("Fail to verify assertion on dataset " + Integer.toString(dts));
             		 }
         		 }
@@ -70,29 +68,27 @@ public class tc2_tests {
  						page.verificationCode(pw);	
  						//If occurred fail prompt after input verification code
                         if(page.textEqualAssertion(LoginPage.LB_ERRORPROMPT, "Login credential or verification code is not correct.")) {
-                        	pass_fail="fail";
+                        	pass_fail="Fail";
         				    throw new Exception("Login fail with incorrect username: " + id + " and password: " + pw);
     					}
                         //Or login success after input verification code
                         else if(drv.getTitle().equals(StartPage.TXT_PAGETITLE)){
                         	if(page.textIncludedAssertion(StartPage.LB_LOGONUSERNAME, (String)exc.getValueByColname("Assertion", dts))) {
-                   			     pass_fail="pass";
-                        		 //page.Logout();
+                   			     pass_fail="Pass";
                    			     System.out.println("Success to verify assertion on dataset " + Integer.toString(dts));
                    		    }
                    		     else {
-                   			     //page.Logout();
-                   		    	pass_fail="fail";
+                   		    	pass_fail="Fail";
                    			    throw new Exception("Fail to verify assertion on dataset " + Integer.toString(dts));
                    		     }
                         }
                         else {
-                        	pass_fail="fail";
+                        	pass_fail="Fail";
                			    throw new Exception("Login fail with incorrect username: " + id +  " and password: " + pw + " on dataset " + Integer.toString(dts));
                         }
     				}
  					else {
- 						pass_fail="fail";
+ 						pass_fail="Fail";
  						throw new Exception("Login fail with incorrect username: " + id + " and password: " + pw);
  					}
         		 }

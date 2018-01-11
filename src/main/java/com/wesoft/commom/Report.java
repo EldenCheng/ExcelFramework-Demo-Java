@@ -2,7 +2,6 @@ package com.wesoft.commom;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
@@ -16,7 +15,7 @@ public class Report {
 	private static String reportfolderpath;
 	private static String reportfilepath;
 	private static int finalreportrow=1;
-	private static IdentityHashMap<String, IdentityHashMap> randomvaluerecoder = new IdentityHashMap<>();
+	private static IdentityHashMap<String, IdentityHashMap<String,IdentityHashMap<String,String>>> randomvaluerecoder = new IdentityHashMap<>();
 		
 	public static void createReportFolderAndFile() throws Throwable{
 		String rprootpth = Constants.Get_REPORTPATH();
@@ -51,6 +50,7 @@ public class Report {
         }
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void GenerateTCReport(WebPage page, String pass_fail, String tc_no, int data_set_no) throws Throwable {
 		Excel ex=null;
 		String snapshotpath=null;
@@ -59,6 +59,7 @@ public class Report {
 		boolean openpage=true;
 		boolean rndthisdataset = false;
 		try {
+			//Use these methods to check if there is any browser window opened
 			WebDriver drv = page.getWebDriver();
 			Set<String> wnd = drv.getWindowHandles();
 			openpage=true;
@@ -66,11 +67,11 @@ public class Report {
 			openpage=false;
 		}
 		if(openpage) {
-			if(pass_fail.equals("pass")) {
+			if(pass_fail.equals("Pass")) {
 				snapshotpath = "..\\" + page.takeSnapshot(tc_no, Integer.toString(data_set_no), "Success");
 				capturename = String.format("TC%s_Dataset_%d_Success.png", tc_no, data_set_no);
 			}
-			else if(pass_fail.equals("fail")) {
+			else if(pass_fail.equals("Fail")) {
 				snapshotpath = page.takeSnapshot(tc_no, Integer.toString(data_set_no), "Fail");
 				capturename = String.format("TC%s_Dataset_%d_Fail.png", tc_no, data_set_no);
 			}
@@ -88,13 +89,12 @@ public class Report {
 			    snapshotpath = ".\\" + snapshotpath.substring(snapshotpath.indexOf("TC" + tc_no), snapshotpath.length());
 			}
             link = String.format("HYPERLINK(\"%s\",\"%s\")" ,snapshotpath, capturename);
-            //System.out.println(link);
 		    ex.setValueByColname(pass_fail, "Result", data_set_no, false);
 		    ex.setValueByColname(link, "Screen capture", data_set_no,true);
 		    ex.setValueByColname("Done", "executed", data_set_no, false);
-		    //System.out.println(randomvaluerecoder);
+		    //If this test cases used any random value
 		    if(randomvaluerecoder.containsKey(tc_no)) {
-		    	IdentityHashMap<String, IdentityHashMap> dtsm = randomvaluerecoder.get(tc_no);
+		    	IdentityHashMap<String, IdentityHashMap<String, String>> dtsm = randomvaluerecoder.get(tc_no);
 		    	String dasvalue = Integer.toString(data_set_no);
 		    	Object[] dtsa = dtsm.keySet().toArray();
 		    	IdentityHashMap<String, String> randomvaluemap=null;
@@ -110,9 +110,9 @@ public class Report {
 		    			j=j+1;
 		    		}
 		    	}
+		    	//If this data set used any random value
 		    	if(rndthisdataset) {
-		    		//System.out.println(dtsm);
-		    		if(randomvaluemap != null || randomvaluemap.isEmpty()== false) {
+		    		if(randomvaluemap != null) {
 		    			Object[] cols = randomvaluemap.keySet().toArray();
 		    			Object[] vals = randomvaluemap.values().toArray();
 		    			for(int i =0;i< cols.length;i++) {
@@ -120,8 +120,7 @@ public class Report {
 		    				String newvalue = (String)ex.getValueByColname(n, data_set_no) + "(val: " + (String)vals[i] + ")";
 		    				ex.setValueByColname(newvalue, n, data_set_no, false);
 		    			}
-		    		}
-		    		
+		    		}	
 		    	}
 		    }
 		    ex.saveExcel(reportfilepath);
@@ -139,7 +138,6 @@ public class Report {
 		int srcrows = 0;
 		
 		try {
-			//excsrc = new Excel(reportfilepath);
 			excsrc = new Excel(reportfilepath);
 			excdes = new Excel(reportfilepath);
 			excsrc.selectSheetByName(tc_no);
@@ -184,24 +182,18 @@ public class Report {
 				excdes.setValueByColname(id, "ID", finalreportrow, false);
 				excdes.setValueByColname(pw, "PW", finalreportrow, false);
 			}
-			//System.out.println(cno);
-			//System.out.println(dts);
-			//System.out.println(description);
-			//System.out.println(exres);
-			//System.out.println(formula);
 			finalreportrow = finalreportrow + 1;
 			
 		}
 		
 		try {
-			//excsrc.closeExcel();
 			excdes.saveExcel(reportfilepath);
 		}catch(Throwable e) {
 			throw new Exception("Error on saving final report excel file; The Exception is: " + e.getMessage());
 		}
 	}
 	
-	public static void recordRandomValue(String tc_no, IdentityHashMap datasetmap) {
+	public static void recordRandomValue(String tc_no, IdentityHashMap<String, IdentityHashMap<String, String>> datasetmap) {
 
 		randomvaluerecoder.put(tc_no, datasetmap);
 		

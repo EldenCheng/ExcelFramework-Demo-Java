@@ -14,7 +14,6 @@ import org.openqa.selenium.WebDriver;
 public class tc1_tests {
 	
 	private String errorlog =null;
-	private String[] browsers;
 	private Object[] dt;
 	private Excel exc;
 	private WebDriver drv;
@@ -25,9 +24,8 @@ public class tc1_tests {
     public void test_start() {    	
     	int trials=0;
     	int dts =0;
-    	String pass_fail = "fail";
+    	String pass_fail = "Fail";
     	WebPage page=null;
-    	WebDriver drv;
     	try {
     	exc= new Excel(Constants.Get_DATAPATH());
     	exc.selectSheetByName(tcno);
@@ -45,12 +43,12 @@ public class tc1_tests {
         		 drv = page.startUp(Constants.Get_URL());
         		 Thread.sleep(1000);
         		 System.out.println("Success on dataset " + Integer.toString(dts));
-        		 pass_fail = "pass";
+        		 pass_fail = "Pass";
         	} catch (Throwable e) {
         		//e.printStackTrace();
         		errorlog = errorlog + "\nError on datset " + Integer.toString(dts) + 
         				"; Error message is: " + e.getMessage();
-        		pass_fail= "fail";
+        		pass_fail= "Fail";
         	}
             
         	try {
