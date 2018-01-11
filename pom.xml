@@ -1,0 +1,152 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.wesoft</groupId>
+  <artifactId>JavaDemo</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <name>JavaDemo</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+
+    <dependencies>
+        <!-- The Library to read/write Excel(*.xlsx) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.17</version>
+        </dependency>
+
+        <!-- The Library POI related -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.17</version>
+        </dependency>
+
+        <!-- Selenium -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+
+        <!-- Simple Java complier to generate dynamic statements of Java code -->
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>3.0.8</version>
+        </dependency>
+
+        <!-- Junit5 platform-->
+        <!-- Runner for executing tests and test suites on the JUnit Platform in a JUnit 4 environment.-->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-runner</artifactId>
+            <version>1.1.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Public API for configuring and launching test plans — typically used by IDEs and build tools.-->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.1.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Support for discovering and executing tests on the JUnit Platform from the console.-->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-console</artifactId>
+            <version>1.1.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- An executable JAR with all dependencies included is provided at Maven Central under the junit-platform-console-standalone directory.-->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-console-standalone</artifactId>
+            <version>1.1.0-M1</version>
+        </dependency>
+
+        <!-- Support for discovering and executing tests on the JUnit Platform using Maven Surefire.-->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-surefire-provider</artifactId>
+            <version>1.1.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+
+
+
+        <!-- Junit5 Jupiter-->
+        <!-- JUnit Jupiter API for writing tests and extensions.-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.1.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JUnit Jupiter test engine implementation, only required at runtime..-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.1.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Support for parameterized tests in JUnit Jupiter. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.1.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Migration support from JUnit 4 to JUnit Jupiter, only required for running selected JUnit 4 rules. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-migrationsupport</artifactId>
+            <version>5.1.0-M1</version>
+        </dependency>
+
+        <!-- JUnit Vintage test engine implementation that allows to run vintage JUnit tests, i.e. tests written in the JUnit 3 or JUnit 4 style, on the new JUnit Platform. -->
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.1.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Junit4 -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- To out put colorful text in console even if in Windows -->
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.16</version>
+        </dependency>
+        
+        <!-- To deal with Json file -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+
+  </dependencies>
+</project>

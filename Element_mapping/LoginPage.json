@@ -1,0 +1,8 @@
+{
+"TXT_PAGETITLE": "KV Login Page", 
+"TXTF_ID": "input[name=userId]", 
+"TXTF_PW": "input[name=password]",
+"TXTF_VCODE": "input#textfld_vc-inputEl", 
+"LB_ERRORPROMPT": "div#viewport-message-area-body div span", 
+"BTN_LOGIN": "button#btn_login-btnEl"
+}
