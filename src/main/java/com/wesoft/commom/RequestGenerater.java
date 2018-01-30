@@ -33,8 +33,8 @@ public class RequestGenerater {
 		String script5=null;
 		//Dynamic add the test cases which is set execute in test data summary
 		for(Object d: dt) {
-			String sc = (String)exc.getValueByColname("Script", new Double((double)d).intValue());
-			if(sc.toLowerCase().equals("x")) {
+			String sc = (String)exc.getValueByColname("To do", new Double((double)d).intValue());
+			if(sc !=null && sc.toLowerCase().equals("x")) {
 				script5 = script5 + ",selectClass(tc" + Integer.toString(new Double((double)d).intValue()) +"_tests.class)";
 			}		
 		}
