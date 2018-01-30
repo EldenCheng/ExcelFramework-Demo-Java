@@ -65,7 +65,7 @@ public class tc1_tests {
         	}
     	}
     	try {
-    		Report.GenerateFinalReport(tcno, true);
+    		Report.GenerateFinalReport(tcno);
     	}catch(Throwable e) {
     		e.printStackTrace();
     		errorlog = errorlog + "\nError on generating report for datset " + Integer.toString(dts) + 

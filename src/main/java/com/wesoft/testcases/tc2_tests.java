@@ -121,7 +121,7 @@ public class tc2_tests {
         	}
     	}
     	try {
-    		Report.GenerateFinalReport(tcno, false);
+    		Report.GenerateFinalReport(tcno);
     	}catch(Throwable e) {
     		e.printStackTrace();
     		errorlog = errorlog + "\nError on generating report for datset " + Integer.toString(dts) + 

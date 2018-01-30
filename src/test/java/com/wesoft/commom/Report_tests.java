@@ -26,7 +26,7 @@ public class Report_tests {
 	public void finalreport_start() {
 		try {
 			Report.createReportFolderAndFile();
-			Report.GenerateFinalReport("1", true);
+			Report.GenerateFinalReport("1");
 		} catch(Throwable e) {
 			e.printStackTrace();
 		}
