@@ -132,7 +132,7 @@ public class Report {
 		
 	}
 	
-	public static void GenerateFinalReport(String tc_no, boolean ignoreIDPW) throws Throwable {
+	public static void GenerateFinalReport(String tc_no) throws Throwable {
 		Excel excsrc=null;
 		Excel excdes=null;
 		int srcrows = 0;
@@ -141,7 +141,7 @@ public class Report {
 			excsrc = new Excel(reportfilepath);
 			excdes = new Excel(reportfilepath);
 			excsrc.selectSheetByName(tc_no);
-			excdes.selectSheetByName("result-timestamp");
+			excdes.selectSheetByName("Result");
 		} catch (Throwable e) {
     		throw new Exception("Error on loading report excel file; The Exception is: " + e.getMessage());
 		}
@@ -154,20 +154,22 @@ public class Report {
 				dts = Integer.toString(new Double((Double)dtsob).intValue());	
 			}
 			
-			String description = (String)excsrc.getValueByColname("Description", i);
-			String exres = (String)excsrc.getValueByColname("Expected result", i);
-			String br = (String)excsrc.getValueByColname("Browser", i);
+			//String description = (String)excsrc.getValueByColname("Description", i);
+			//String exres = (String)excsrc.getValueByColname("Expected result", i);
+			//String br = (String)excsrc.getValueByColname("Browser", i);
 			String executed = (String)excsrc.getValueByColname("executed", i);
 			String asst = (String)excsrc.getValueByColname("Assertion", i);
 			
-			excdes.setValueByColname(tc_no, "Case No", finalreportrow, false);
-			excdes.setValueByColname(dts, "Data set", finalreportrow, false);
-			excdes.setValueByColname(description, "Description", finalreportrow, false);
-			excdes.setValueByColname(exres, "Expected result", finalreportrow, false);
-			excdes.setValueByColname(br, "Browser", finalreportrow, false);
-			excdes.setValueByColname(asst, "Assertion", finalreportrow, false);
+			//excdes.setValueByColname(tc_no, "Case No", finalreportrow, false);
+			//excdes.setValueByColname(dts, "Data set", finalreportrow, false);
+			//excdes.setValueByColname(description, "Description", finalreportrow, false);
+			//excdes.setValueByColname(exres, "Expected result", finalreportrow, false);
+			//excdes.setValueByColname(br, "Browser", finalreportrow, false);
+
 			if(executed ==null || executed.equals("Done") == false) {
 				excdes.setValueByColname("Skipped", "executed", finalreportrow, false);
+				excdes.setValueByColname("Skipped", "Result", finalreportrow, false);
+				excdes.setValueByColname(asst, "Assertion", finalreportrow, false);
 			}
 			else if(executed.equals("Done")){
 				String res = (String)excsrc.getValueByColname("Result", i);
@@ -176,12 +178,14 @@ public class Report {
 				excdes.setValueByColname(res, "Result", finalreportrow, false);
 				excdes.setValueByColname(scrsav, "Screen capture", finalreportrow, true);
 			}
+			/* Discard after the Excel test data format changed
 			if(ignoreIDPW == false) {
 				String id = (String)excsrc.getValueByColname("ID", i);
 				String pw = (String)excsrc.getValueByColname("PW", i);
 				excdes.setValueByColname(id, "ID", finalreportrow, false);
 				excdes.setValueByColname(pw, "PW", finalreportrow, false);
 			}
+			*/
 			finalreportrow = finalreportrow + 1;
 			
 		}
