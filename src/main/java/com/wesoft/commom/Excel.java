@@ -261,7 +261,7 @@ public class Excel {
 							if(sheet.getRow(j).getCell(i).getStringCellValue().toLowerCase().equals(keyword.toLowerCase())) {
 								int cellidx = this.getCellIndexByColname(dataset_colname);
 								XSSFCell c =sheet.getRow(j).getCell(cellidx);
-								if (cellidx !=0 && c !=null && c.getCellTypeEnum() == CellType.FORMULA) {
+								if (c !=null && c.getCellTypeEnum() == CellType.FORMULA) {
 									value = formulaEvaluator.evaluate(sheet.getRow(j).getCell(cellidx)).getNumberValue();
 								}
 								else {
