@@ -10,7 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet; 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -22,6 +25,7 @@ public class Excel {
 	private IdentityHashMap<String, IdentityHashMap<String,String>> randomdatasetmap;
 	private IdentityHashMap<String, String> randomvaluemap;
 	private int recordeddataset;
+	private FormulaEvaluator formulaEvaluator = null;
 	
 	public Excel(String excelpath) throws Throwable {
 		
@@ -34,6 +38,7 @@ public class Excel {
 		try {
 			fis = new FileInputStream(excel);
 			book = new XSSFWorkbook(fis);
+			formulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) book);
 			
 		} catch (FileNotFoundException e) {
 			throw new Exception("Not found excel file in the path. " + 
@@ -254,7 +259,14 @@ public class Excel {
 						if(sheet.getRow(j).getCell(i) != null) {
 							//Then find the row number which is hit the keyword in the specified col
 							if(sheet.getRow(j).getCell(i).getStringCellValue().toLowerCase().equals(keyword.toLowerCase())) {
-								value=this.getValueByColname(dataset_colname, j);
+								int cellidx = this.getCellIndexByColname(dataset_colname);
+								XSSFCell c =sheet.getRow(j).getCell(cellidx);
+								if (cellidx !=0 && c !=null && c.getCellTypeEnum() == CellType.FORMULA) {
+									value = formulaEvaluator.evaluate(sheet.getRow(j).getCell(cellidx)).getNumberValue();
+								}
+								else {
+									value=this.getValueByColname(dataset_colname, j);
+								}
 								if(value != null) {
 									dt.add(value);
 								}
@@ -269,6 +281,23 @@ public class Excel {
 			throw new Exception("Cannot find any value in col: \"" + dataset_colname + "\" by using \"" + keyword + "\" to search in col: \"" + accroding_dataset_colname + "\"" );
 		}
 		return dt.toArray();
+	}
+	
+	public int getCellIndexByColname(String colname) throws Throwable{
+		int cellindex =0;
+		int cols = this.getColNumber() + 1;
+	
+		for(int i = 0;i<cols;i++) {
+			if(sheet.getRow(0).getCell(i) != null) {
+				//When the col name(in row 0) is equals the keyword
+				if(sheet.getRow(0).getCell(i).getStringCellValue().toLowerCase().equals(colname.toLowerCase())) {
+					if(sheet.getRow(0).getCell(i) != null) {
+						cellindex = i; 
+					}
+				}	
+			}
+		}
+		return cellindex;
 	}
 	
 	public void setValueByColname(String value, String colname, int row, boolean formula) throws Throwable {
