@@ -165,11 +165,11 @@ public class Report {
 			//excdes.setValueByColname(description, "Description", finalreportrow, false);
 			//excdes.setValueByColname(exres, "Expected result", finalreportrow, false);
 			//excdes.setValueByColname(br, "Browser", finalreportrow, false);
+			excdes.setValueByColname(asst, "Assertion", finalreportrow, false);
 
 			if(executed ==null || executed.equals("Done") == false) {
 				excdes.setValueByColname("Skipped", "executed", finalreportrow, false);
 				excdes.setValueByColname("Skipped", "Result", finalreportrow, false);
-				excdes.setValueByColname(asst, "Assertion", finalreportrow, false);
 			}
 			else if(executed.equals("Done")){
 				String res = (String)excsrc.getValueByColname("Result", i);
