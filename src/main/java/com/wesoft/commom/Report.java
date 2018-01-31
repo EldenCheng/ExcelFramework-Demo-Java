@@ -15,6 +15,7 @@ public class Report {
 	private static String reportfolderpath;
 	private static String reportfilepath;
 	private static int finalreportrow=1;
+	private static String timestamp;
 	private static IdentityHashMap<String, IdentityHashMap<String,IdentityHashMap<String,String>>> randomvaluerecoder = new IdentityHashMap<>();
 		
 	public static void createReportFolderAndFile() throws Throwable{
@@ -23,9 +24,9 @@ public class Report {
 		//Get the formated Date time, and use it as the reportfolder name 
 		Date ss = new Date();
 		SimpleDateFormat format0 = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
-        String time = format0.format(ss.getTime());
+        timestamp = format0.format(ss.getTime());
         
-        File dir =new File(rprootpth + "/" + time);
+        File dir =new File(rprootpth + "/" + timestamp);
         try {
 	        if(dir.isDirectory() == false) {
 	        	//If not a directory, create it first
@@ -34,7 +35,7 @@ public class Report {
         	reportfolderpath = dir.getPath();
 	        //Copy the data excel file to the report folder, rename it and use it as a report excel file
 	        File srcfile = new File(Constants.Get_DATAPATH());
-	        File desfile = new File(reportfolderpath + "/" + "Report_" + time + ".xlsx");
+	        File desfile = new File(reportfolderpath + "/" + "Report_" + timestamp + ".xlsx");
 	        Files.copy(srcfile.toPath(), desfile.toPath());
 	        if(desfile.exists() == false) {
 	        	throw new Exception("Copy data excel file to create report excel file fail!");
@@ -58,6 +59,7 @@ public class Report {
 		String link = null;
 		boolean openpage=true;
 		boolean rndthisdataset = false;
+		
 		try {
 			//Use these methods to check if there is any browser window opened
 			WebDriver drv = page.getWebDriver();
@@ -66,29 +68,43 @@ public class Report {
 		}catch(Throwable e) {
 			openpage=false;
 		}
-		if(openpage) {
-			if(pass_fail.equals("Pass")) {
-				snapshotpath = "..\\" + page.takeSnapshot(tc_no, Integer.toString(data_set_no), "Success");
-				capturename = String.format("TC%s_Dataset_%d_Success.png", tc_no, data_set_no);
-			}
-			else if(pass_fail.equals("Fail")) {
-				snapshotpath = page.takeSnapshot(tc_no, Integer.toString(data_set_no), "Fail");
-				capturename = String.format("TC%s_Dataset_%d_Fail.png", tc_no, data_set_no);
-			}
-		}
 		
 		try {
+			if(reportfilepath == null) {
+				Report.createReportFolderAndFile();
+			}
 			ex = new Excel(reportfilepath);
-			ex.selectSheetByName(tc_no);
+			ex.selectSheetByName("Report");
 		} catch (Throwable e) {
     		throw new Exception("Error on loading report excel file; The Exception is: " + e.getMessage());
 		}
 		
+
+		if(pass_fail.equals("Pass")) {
+			if(openpage) {
+				snapshotpath = "..\\" + page.takeSnapshot(tc_no, Integer.toString(data_set_no), "Success");
+				capturename = String.format("TC%s_Dataset_%d_Success.png", tc_no, data_set_no);
+			}
+			double orivalue = (double)ex.getValueByRowname("Total number of pass", 1);
+			orivalue = orivalue +1;
+			ex.setValueByRowname(Integer.toString(new Double(orivalue).intValue()), "Total number of pass", 1, false);				
+		}
+		else if(pass_fail.equals("Fail")) {
+			if(openpage) {
+				snapshotpath = page.takeSnapshot(tc_no, Integer.toString(data_set_no), "Fail");
+				capturename = String.format("TC%s_Dataset_%d_Fail.png", tc_no, data_set_no);
+			}
+			double orivalue = (double)ex.getValueByRowname("Total number of fail", 1);
+			orivalue = orivalue +1;
+			ex.setValueByRowname(Integer.toString(new Double(orivalue).intValue()), "Total number of fail", 1, false);	
+		}
+			
 		try {
 			if(snapshotpath != null) {
 			    snapshotpath = ".\\" + snapshotpath.substring(snapshotpath.indexOf("TC" + tc_no), snapshotpath.length());
 			}
             link = String.format("HYPERLINK(\"%s\",\"%s\")" ,snapshotpath, capturename);
+			ex.selectSheetByName(tc_no);
 		    ex.setValueByColname(pass_fail, "Result", data_set_no, false);
 		    ex.setValueByColname(link, "Screen capture", data_set_no,true);
 		    ex.setValueByColname("Done", "executed", data_set_no, false);
@@ -138,14 +154,20 @@ public class Report {
 		int srcrows = 0;
 		
 		try {
+			if(reportfilepath == null) {
+				Report.createReportFolderAndFile();
+			}
 			excsrc = new Excel(reportfilepath);
 			excdes = new Excel(reportfilepath);
 			excsrc.selectSheetByName(tc_no);
-			excdes.selectSheetByName("Result");
+			excdes.selectSheetByName("Report");
+			excdes.setValueByRowname(Constants.Get_TESTAPKVERSION(), "Test apk version", 1, false);
+			excdes.setValueByRowname(timestamp, "Timestamp", 1, false);
 		} catch (Throwable e) {
     		throw new Exception("Error on loading report excel file; The Exception is: " + e.getMessage());
 		}
 		srcrows = excsrc.getRowNumber();
+		excdes.selectSheetByName("Result");
 		for(int i=1;i<=srcrows;i++) {
 			Object dtsob = excsrc.getValueByColname("Data set", i);
 			String dts=null;
