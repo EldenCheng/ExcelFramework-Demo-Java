@@ -13,9 +13,12 @@ import java.util.Random;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet; 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.wesoft.commom.Report;
 
 public class Excel {
 	
@@ -36,6 +39,9 @@ public class Excel {
         recordeddataset = -1;
         
 		try {
+			if(Report.getReportFilePath() == null) {
+				Report.createReportFolderAndFile();
+			}
 			fis = new FileInputStream(excel);
 			book = new XSSFWorkbook(fis);
 			formulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) book);
@@ -198,7 +204,7 @@ public class Excel {
 		Excel temp=null;
 		XSSFSheet st=null;
 		try {
-			temp = new Excel(Report.getReportFilePath());
+			temp = new Excel(Constants.Get_DATAPATH());
 			st = temp.selectSheetByName("data");				
 		}catch(Throwable e) {
 			throw new Exception("Error(s) occurred when opening in data sheet: " + 
@@ -300,13 +306,70 @@ public class Excel {
 		return cellindex;
 	}
 	
+	public Object getValueByRowname(String rowname, int column) throws Throwable{
+		Object value =null;
+		int cols = this.getColNumber() + 1;
+		int rows =sheet.getLastRowNum() + 1 ;
+		if(column > cols) {
+			throw new Exception("The specified col num is larger than the max row num: " + Integer.toString(rows));
+		}
+		
+		for(int i = 0;i<rows;i++) {
+			if(sheet.getRow(i).getCell(0) != null) {
+				//When the row name(in col 0) is equals the keyword
+				if(sheet.getRow(i).getCell(0).getStringCellValue().toLowerCase().equals(rowname.toLowerCase())) {
+					if(sheet.getRow(i).getCell(column) != null) {
+						switch (sheet.getRow(i).getCell(column).getCellTypeEnum()) {
+						
+						case NUMERIC:
+							value = sheet.getRow(i).getCell(column).getNumericCellValue();
+							break;
+						case STRING:
+							value = sheet.getRow(i).getCell(column).getStringCellValue();
+							//String v = (String)value;
+							//If the value has keyword "random"
+							/* Discard as no need to deal with at new excel test data format
+							if(v.contains("random")) {
+								//To ensure will not exchange random value when generate report need to read the same cell value
+								//So when running test cases, set the tcno, if generating report, not set 
+								if(tcno != null){
+									value = this.getRandomValue(v);	
+									//To avoid repeat to add the same randomdatasetmap and create a new randomvaluemap
+									//if there is multi random value in one dataset
+									if(recordeddataset != i) {
+										randomvaluemap = new IdentityHashMap<>();
+										randomvaluemap.put(colname, (String)value);
+										randomdatasetmap.put(Integer.toString(row), randomvaluemap);
+										Report.recordRandomValue(tcno, randomdatasetmap);
+										recordeddataset = row;									
+									}
+									else {
+										randomvaluemap.put(colname, (String)value);
+									}	
+								}
+							}*/
+							break;
+						case FORMULA:
+							value = sheet.getRow(i).getCell(column).getCellFormula();
+							break;
+						default:
+							value = sheet.getRow(i).getCell(column).getRawValue();
+						}
+						break;
+					}
+				}	
+			}
+		}
+		return value;
+	}
+	
 	public void setValueByColname(String value, String colname, int row, boolean formula) throws Throwable {
 		
 		int cols = this.getColNumber() + 1;
 		int rows = sheet.getLastRowNum() + 1 ;
 		if(row > rows) {
-			throw new Exception("The specified row num is larger than the max row num: " + Integer.toString(rows));
-		}else if(row == rows) { //As row 0 must be col name, so in fact real row number must + 1
+			throw new Exception("The specified col num is larger than the max row num: " + Integer.toString(rows));
+		}else if(row ==rows) { //As row 0 must be col name, so in fact real row number must + 1
 			sheet.createRow(row);
 		}
 		
@@ -317,13 +380,19 @@ public class Excel {
 						//The cell is not exist if there is no value in fact, so need to create it first
 						//If the cell already existed, create the same cell will use a blank cell cover the ori cell
 						//But we are going to use a new value to cover the old value, so has no check the ori cell exists or not here
-						XSSFCell c = sheet.getRow(row).createCell(i);
+						XSSFCell c = sheet.getRow(row).getCell(i);
+						if(c == null) {
+							c = sheet.getRow(row).createCell(i);
+						}
+						//XSSFCellStyle cst=(XSSFCellStyle) c.getCellStyle();
 						if(formula) {
 							c.setCellFormula(value);
+							//c.setCellStyle(cst);
 							break;                   	
 	                    }
 						else {
 							c.setCellValue(value);
+							//c.setCellStyle(cst);
 							break;
 						}
 					}
@@ -331,6 +400,65 @@ public class Excel {
 			}
 		}catch(Throwable e) {
 			//e.printStackTrace();
+			throw new Exception("Error on writing excel file; The Exception is: " + e.getMessage());
+		}
+	}
+	
+	public void setValueByRowname(String value, String rowname, int column, boolean formula) throws Throwable {
+		
+		int cols = this.getColNumber() + 1;
+		int rows = sheet.getLastRowNum() + 1 ;
+		if(column > cols) {
+			throw new Exception("The specified row num is larger than the max row num: " + Integer.toString(rows));
+		}
+		
+		try {
+			for(int i = 0;i<rows;i++) {
+				if(sheet.getRow(i).getCell(0) != null) {
+					if(sheet.getRow(i).getCell(0).getStringCellValue().toLowerCase().equals(rowname.toLowerCase())) {
+						//The cell is not exist if there is no value in fact, so need to create it first
+						//If the cell already existed, create the same cell will use a blank cell cover the ori cell
+						//But we are going to use a new value to cover the old value, so has no check the ori cell exists or not here
+						XSSFCell c = sheet.getRow(i).getCell(column);
+						if(c == null) {
+							c = sheet.getRow(i).createCell(column);
+						}
+						//XSSFCellStyle cst=(XSSFCellStyle) c.getCellStyle();
+						if(formula) {
+							c.setCellFormula(value);
+							//c.setCellStyle(cst);
+							break;                   	
+	                    }
+						else {
+							switch (c.getCellTypeEnum()) {
+							
+							case NUMERIC:
+								c.setCellValue(Double.valueOf(value));
+								//c.setCellStyle(cst);
+								break;
+								
+							case BLANK:
+								if(CommonUtil.isNumberic(value)) {
+									c.setCellValue(Double.valueOf(value));
+									//c.setCellStyle(cst);
+								}
+								else {
+									c.setCellValue(value);
+									//c.setCellStyle(cst);
+								}
+								break;
+								
+							default:
+								c.setCellValue(value);
+								//c.setCellStyle(cst);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}catch(Throwable e) {
+			e.printStackTrace();
 			throw new Exception("Error on writing excel file; The Exception is: " + e.getMessage());
 		}
 	}
