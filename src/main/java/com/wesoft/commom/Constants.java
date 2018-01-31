@@ -18,6 +18,8 @@ public class Constants {
 	private static String CHROMEDRIVERPATH;
 	private static String IEDRIVERPATH;
 	private static String GECKODRIVERPATH;
+	private static String TESTAPKVERSION;
+	private static String TESTER;
 
 	//Initialize the constant values
 	//This static block will be executed automatically when the application start
@@ -33,6 +35,8 @@ public class Constants {
             CHROMEDRIVERPATH = json.get("CHROMEDRIVERPATH").getAsString();
             IEDRIVERPATH = json.get("IEDRIVERPATH").getAsString();
             GECKODRIVERPATH = json.get("GECKODRIVERPATH").getAsString();
+            TESTAPKVERSION = json.get("TESTAPKVERSION").getAsString();
+            TESTER = json.get("TESTER").getAsString();
 
         } catch (JsonIOException e) {
             e.printStackTrace();
@@ -65,6 +69,14 @@ public class Constants {
 	
 	public static String Get_GECKODRIVERPATH() {
 		return GECKODRIVERPATH;
+	}
+	
+	public static String Get_TESTAPKVERSION() {
+		return TESTAPKVERSION;
+	}
+	
+	public static String Get_TESTER() {
+		return TESTER;
 	}	
 	
 }
