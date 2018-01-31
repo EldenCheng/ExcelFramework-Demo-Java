@@ -162,6 +162,7 @@ public class Report {
 			excsrc.selectSheetByName(tc_no);
 			excdes.selectSheetByName("Report");
 			excdes.setValueByRowname(Constants.Get_TESTAPKVERSION(), "Test apk version", 1, false);
+			excdes.setValueByRowname(Constants.Get_TESTER(), "Tester", 1, false);
 			excdes.setValueByRowname(timestamp, "Timestamp", 1, false);
 		} catch (Throwable e) {
     		throw new Exception("Error on loading report excel file; The Exception is: " + e.getMessage());
